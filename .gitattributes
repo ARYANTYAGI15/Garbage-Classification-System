@@ -1,2 +1,4 @@
 capstone filter=lfs diff=lfs merge=lfs -text
 C:/Users/Dell/OneDrive/Desktop/Capstone filter=lfs diff=lfs merge=lfs -text
+node_modules/
+
