@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garbage Classification</title>
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background gradient and layout */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #222121, #3f5efb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        /* Container for form */
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: popUp 0.8s ease;
+        }
+
+        /* Form heading */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* File input styling */
+        input[type="file"] {
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            border: 2px dashed #fff;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+
+        input[type="file"]:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Upload button with gradient */
+        button {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+
+        /* Button hover effect */
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Result text styling */
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #fff;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Loading text animation */
+        .loading {
+            font-size: 16px;
+            color: #ffdd57;
+            animation: blink 1s infinite;
+        }
+
+        /* Keyframe animations */
+        @keyframes popUp {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Classify Your Trash</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" name="file" id="file-input" accept="image/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const result = document.getElementById('result');
+        const fileInput = document.getElementById('file-input');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            // Clear previous result
+            result.innerText = '';
+
+            if (!fileInput.files.length) {
+                result.innerText = 'Please select a file.';
+                return;
+            }
+
+            // Show loading message
+            result.innerHTML = '<span class="loading">Classifying your trash...</span>';
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    result.innerHTML = `<strong>Predicted Material:</strong> <span style="color: #ffdd57;">${data.material}</span>`;
+                } else {
+                    result.innerText = 'Error in prediction!';
+                }
+            } catch (error) {
+                result.innerText = 'Error in prediction! Please try again later.';
+            }
+        });
+    </script>
+</body>
+</html>
